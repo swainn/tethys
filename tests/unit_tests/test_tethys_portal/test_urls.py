@@ -34,8 +34,8 @@ class TestUrls(TethysTestCase):
         url = reverse('accounts:password_reset')
         resolver = resolve(url)
         self.assertEqual('/accounts/password/reset/', url)
-        self.assertEqual('PasswordResetView', resolver.func.__name__)
-        self.assertEqual('django.contrib.auth.views', resolver.func.__module__)
+        self.assertEqual('TethysPasswordResetView', resolver.func.__name__)
+        self.assertEqual('tethys_portal.views.email', resolver.func.__module__)
 
     def test_account_urls_accounts_password_reset_done(self):
         url = reverse('accounts:password_reset_done')
@@ -58,39 +58,74 @@ class TestUrls(TethysTestCase):
         self.assertEqual('PasswordResetCompleteView', resolver.func.__name__)
         self.assertEqual('django.contrib.auth.views', resolver.func.__module__)
 
+    def test_oauth2_urls_login(self):
+        url = reverse('social:begin', kwargs={'backend': 'foo'})
+        resolver = resolve(url)
+        self.assertEqual('/oauth2/login/foo/', url)
+        self.assertEqual('auth', resolver.func.__name__)
+        self.assertEqual('tethys_portal.views.psa', resolver.func.__module__)
+
+    def test_oauth2_urls_complete(self):
+        url = reverse('social:complete', kwargs={'backend': 'foo'})
+        resolver = resolve(url)
+        self.assertEqual('/oauth2/complete/foo/', url)
+        self.assertEqual('complete', resolver.func.__name__)
+        self.assertEqual('tethys_portal.views.psa', resolver.func.__module__)
+
+    def test_oauth2_urls_disconnect(self):
+        url = reverse('social:disconnect', kwargs={'backend': 'foo'})
+        resolver = resolve(url)
+        self.assertEqual('/oauth2/disconnect/foo/', url)
+        self.assertEqual('disconnect', resolver.func.__name__)
+        self.assertEqual('social_django.views', resolver.func.__module__)
+
+    def test_oauth2_urls_disconnect_individual(self):
+        url = reverse('social:disconnect_individual', kwargs={'backend': 'foo', 'association_id': '123'})
+        resolver = resolve(url)
+        self.assertEqual('/oauth2/disconnect/foo/123/', url)
+        self.assertEqual('disconnect', resolver.func.__name__)
+        self.assertEqual('social_django.views', resolver.func.__module__)
+
+    def test_oauth2_urls_tenant(self):
+        url = reverse('social:tenant', kwargs={'backend': 'foo'})
+        resolver = resolve(url)
+        self.assertEqual('/oauth2/tenant/foo/', url)
+        self.assertEqual('tenant', resolver.func.__name__)
+        self.assertEqual('tethys_portal.views.psa', resolver.func.__module__)
+
     def test_user_urls_profile(self):
-        url = reverse('user:profile', kwargs={'username': 'foo'})
+        url = reverse('user:profile')
         resolver = resolve(url)
 
-        self.assertEqual('/user/foo/', url)
+        self.assertEqual('/user/', url)
         self.assertEqual('profile', resolver.func.__name__)
         self.assertEqual('tethys_portal.views.user', resolver.func.__module__)
 
     def test_user_urls_settings(self):
-        url = reverse('user:settings', kwargs={'username': 'foo'})
+        url = reverse('user:settings')
         resolver = resolve(url)
-        self.assertEqual('/user/foo/settings/', url)
+        self.assertEqual('/user/settings/', url)
         self.assertEqual('settings', resolver.func.__name__)
         self.assertEqual('tethys_portal.views.user', resolver.func.__module__)
 
     def test_user_urls_change_password(self):
-        url = reverse('user:change_password', kwargs={'username': 'foo'})
+        url = reverse('user:change_password')
         resolver = resolve(url)
-        self.assertEqual('/user/foo/change-password/', url)
+        self.assertEqual('/user/change-password/', url)
         self.assertEqual('change_password', resolver.func.__name__)
         self.assertEqual('tethys_portal.views.user', resolver.func.__module__)
 
     def test_user_urls_disconnect(self):
-        url = reverse('user:change_password', kwargs={'username': 'foo'})
+        url = reverse('user:change_password')
         resolver = resolve(url)
-        self.assertEqual('/user/foo/change-password/', url)
+        self.assertEqual('/user/change-password/', url)
         self.assertEqual('change_password', resolver.func.__name__)
         self.assertEqual('tethys_portal.views.user', resolver.func.__module__)
 
     def test_user_urls_delete(self):
-        url = reverse('user:delete', kwargs={'username': 'foo'})
+        url = reverse('user:delete')
         resolver = resolve(url)
-        self.assertEqual('/user/foo/delete-account/', url)
+        self.assertEqual('/user/delete-account/', url)
         self.assertEqual('delete_account', resolver.func.__name__)
         self.assertEqual('tethys_portal.views.user', resolver.func.__module__)
 

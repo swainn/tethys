@@ -14,7 +14,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.contrib import messages
 from django.views.decorators.cache import never_cache
+from mfa.helpers import has_mfa
 from tethys_portal.forms import LoginForm, RegisterForm
+from tethys_portal.utilities import log_user_in
 
 
 @never_cache
@@ -24,7 +26,7 @@ def login_view(request):
     """
     # Only allow users to access login page if they are not logged in
     if not request.user.is_anonymous:
-        return redirect('user:profile', username=request.user.username)
+        return redirect('user:profile')
 
     # Handle form
     if request.method == 'POST' and 'login-submit' in request.POST:
@@ -43,14 +45,12 @@ def login_view(request):
             if user is not None:
                 # The password has been verified for the user
                 if user.is_active:
-                    # The user is valid, active, and authenticated, so login in the user
-                    login(request, user)
+                    # Check for multi factor authentication
+                    mfa_response = has_mfa(request, user.username)
+                    if mfa_response:
+                        return mfa_response
 
-                    # Redirect after logged in using next parameter or default to user profile
-                    if 'next' in request.GET:
-                        return redirect(request.GET['next'])
-                    else:
-                        return redirect('app_library')
+                    return log_user_in(request, user)
                 else:
                     # The password is valid, but the user account has been disabled
                     # Return a disabled account 'error' message
@@ -81,7 +81,7 @@ def register(request):
     """
     # Only allow users to access register page if they are not logged in
     if not request.user.is_anonymous:
-        return redirect('user:profile', username=request.user.username)
+        return redirect('user:profile')
 
     # Disallow access to this page if open signup is disabled
     if not hasattr(settings, 'ENABLE_OPEN_SIGNUP') or not settings.ENABLE_OPEN_SIGNUP:
@@ -116,7 +116,7 @@ def register(request):
                     if 'next' in request.GET:
                         return redirect(request.GET['next'])
                     else:
-                        return redirect('user:profile', username=user.username)
+                        return redirect('user:profile')
                 else:
                     # The password is valid, but the user account has been disabled
                     # Return a disabled account 'error' message
@@ -147,25 +147,3 @@ def logout_view(request):
 
     # Redirect home
     return redirect('home')
-
-
-@never_cache
-def reset_confirm(request, uidb64=None, token=None):
-    return PasswordResetConfirmView(
-        request,
-        template_name='tethys_portal/accounts/password_reset/reset_confirm.html',
-        uidb64=uidb64,
-        token=token,
-        success_url=reverse('accounts:login')
-    )
-
-
-@never_cache
-def reset(request):
-    return PasswordResetView(
-        request,
-        template_name='tethys_portal/accounts/password_reset/reset_request.html',
-        email_template_name='tethys_portal/accounts/password_reset/reset_email.html',
-        subject_template_name='tethys_portal/accounts/password_reset/reset_subject.txt',
-        success_url=reverse('accounts:login')
-    )

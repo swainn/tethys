@@ -20,8 +20,9 @@ var CESIUM_MAP_VIEW = (function() {
         m_view_options,                 // The map view options
         m_terrain_options,              // The map terrain options
         m_image_layer_options,          // The map image layer options
-        m_models_options,               // The map 3D object options
+        m_models,                       // The map 3D object data
         m_entities_options,             // The map entity options
+        m_primitives,                   // The map primitive data
         m_clock,                        // The map clock options
         m_draw;                         // The map drawing option (boolean)
 
@@ -33,13 +34,14 @@ var CESIUM_MAP_VIEW = (function() {
  	*************************************************************************/
  	var cesium_base_map_init, cesium_globe_init, cesium_map_view_init, cesium_initialize_all, cesium_widgets_init,
  	    clock_options_init, cesium_view, cesium_terrain, cesium_image_layers, cesium_load_model, cesium_load_entities,
- 	    cesium_models, update_field, option_checker;
+ 	    cesium_load_primitives, cesium_models, update_field, option_checker;
 
     var cesium_shadow_options, textarea_string_dict, cesium_logging;
 
     // Utility Methods
     var is_defined, is_empty_or_undefined, in_array, string_to_object, string_to_function, string_w_arg_to_function,
-        build_options, build_options_string, need_to_run, cesium_options, json_parser, clear_data;
+        build_options, build_options_string, need_to_run, cesium_options, json_parser, clear_data,
+        cesium_time_callback;
 
 
  	/************************************************************************
@@ -76,7 +78,6 @@ var CESIUM_MAP_VIEW = (function() {
         // Get view settings from data attribute
         var $map_element = $('#' + m_map_target);
         m_clock = $map_element.data('clock');
-
         if (!is_empty_or_undefined(m_clock))
         {
             // Parse out the Cesium objects
@@ -183,14 +184,49 @@ var CESIUM_MAP_VIEW = (function() {
 
             if ('source' in curr_layer) {
                 if (curr_layer.source == 'TileWMS' || curr_layer.source == 'ImageWMS') {
-                    var tile_wms = new Cesium.WebMapServiceImageryProvider({
-                        url: curr_layer.options.url,
-                        layers: curr_layer.options.params.LAYERS,
-                        parameters: {
-                            format: 'image/png',
-                            transparent: true,
-                        }
-                    });
+                    var parameters = {
+                        format: 'image/png',
+                        transparent: true,
+                    }
+
+                    if (curr_layer.options.params.ENV) {
+                        parameters.ENV = curr_layer.options.params.ENV;
+                    }
+
+                    if (curr_layer.options.params.VIEWPARAMS) {
+                        parameters.VIEWPARAMS = curr_layer.options.params.VIEWPARAMS;
+                    }
+                    if (curr_layer.times) {
+                        // times should be a JSON array string with times in ISO 8601 format: "["20210322T112511Z", "20210322T122511Z", "20210323T032511Z"]"
+                        var times = JSON.parse(curr_layer.times);
+                        const provider_interval = new Cesium.TimeIntervalCollection.fromIso8601DateArray({
+                            iso8601Dates: times,
+                            dataCallback: cesium_time_callback,
+                        });
+
+                        var clock = m_viewer.clock;
+                        var start = Cesium.JulianDate.fromIso8601(times[0])
+                        var stop = Cesium.JulianDate.fromIso8601(times[times.length - 1])
+                        clock.startTime = start;
+                        clock.stopTime = stop;
+                        clock.currentTime = start;
+                        clock.multiplier = 600;  // run at 10-minute interval speed.
+                        var tile_wms = new Cesium.WebMapServiceImageryProvider({
+                            url: curr_layer.options.url,
+                            layers: curr_layer.options.params.LAYERS,
+                            parameters: parameters,
+                            times: provider_interval,
+                            clock: m_viewer.clock,
+                        });
+                    }
+                    else {
+                        var tile_wms = new Cesium.WebMapServiceImageryProvider({
+                            url: curr_layer.options.url,
+                            layers: curr_layer.options.params.LAYERS,
+                            parameters: parameters,
+                        });
+                        console.log(tile_wms)
+                    }
                     var img_layer = m_viewer.imageryLayers.addImageryProvider(tile_wms);
                     img_layer['tethys_data'] = curr_layer.data;
                     img_layer['legend_title'] = curr_layer.legend_title;
@@ -200,7 +236,6 @@ var CESIUM_MAP_VIEW = (function() {
                     img_layer['feature_selection'] = curr_layer.feature_selection;
                     img_layer['geometry_attribute'] = curr_layer.geometry_attribute;
                 }
-
             } else {
                 var layer_options = cesium_options(curr_layer);
                 for (var layer_option in layer_options) {
@@ -227,9 +262,9 @@ var CESIUM_MAP_VIEW = (function() {
     cesium_models = function()
     {
         var $map_element = $('#' + m_map_target);
-        m_models_options = $map_element.data('models');
+        m_models = $map_element.data('models');
 
-        if(!is_empty_or_undefined(m_models_options))
+        if(!is_empty_or_undefined(m_models))
         {
              cesium_shadow_options = {'disabled': 0, 'enabled': 1, 'cast_only': 2, 'receive_only': 3, 'number_of_shadow_modes': 4}
         }
@@ -238,23 +273,31 @@ var CESIUM_MAP_VIEW = (function() {
             return;
         }
 
-        let m_model_option_properties = cesium_options(m_models_options);
-        for (let m_model_option_property in m_model_option_properties)
-        {
-            var name = m_model_option_properties[m_model_option_property]['name'];
-            // Map shadows key
-            if ('shadows' in m_model_option_properties[m_model_option_property]['model']) {
-                var shadow_prop = m_model_option_properties[m_model_option_property]['model']['shadows']
-                m_model_option_properties[m_model_option_property]['model']['shadows'] = cesium_shadow_options[shadow_prop.toLowerCase()]
+        for (let model of m_models) {
+            var model_option;
+            if (model.source && model.source === 'CesiumModel') {
+                // The options attribute is where the Cesium model definition is stored in MVLayer objects.
+                model_option = cesium_options(model.options);
             }
-            var model = m_model_option_properties[m_model_option_property]['model'];
-            var position = m_model_option_properties[m_model_option_property]['position'];
-            var orientation = m_model_option_properties[m_model_option_property]['orientation'];
-            cesium_load_model(model, model, position, orientation);
+            else {
+            // else we will treat it as normal cesium object.
+                model_option = cesium_options(Object.values(model)[0]);
+            }
+            let model_data = model.data
+            var name = model_option.name;
+            // Map shadows key
+            if ('shadows' in model_option['model']) {
+                var shadow_prop = model_option['model']['shadows']
+                model_option['model']['shadows'] = cesium_shadow_options[shadow_prop.toLowerCase()]
+            }
+            var cesium_model = model_option['model'];
+            var position = model_option['position'];
+            var orientation = model_option['orientation'];
+            cesium_load_model(name, cesium_model, position, orientation, model_data);
         }
     }
 
-    cesium_load_model = function(name, model, position, orientation)
+    cesium_load_model = function(name, model, position, orientation, model_data)
     {
         // Convert shadow to number using shadow_dict.
         var entity = m_viewer.entities.add({
@@ -263,24 +306,49 @@ var CESIUM_MAP_VIEW = (function() {
                                             orientation : orientation,
                                             model : model,
                                          });
-        m_viewer.trackedEntity = entity;
+        entity['tethys_data'] = model_data;
+    }
+
+    // Set Cesium primitives
+    cesium_load_primitives = function()
+    {
+        var $map_element = $('#' + m_map_target);
+        m_primitives = $map_element.data('primitives');
+        if(is_empty_or_undefined(m_primitives))
+        {
+            return;
+        }
+        for (let primitive of m_primitives) {
+            let primitive_option;
+            if (primitive.source && primitive.source === "CesiumPrimitive") {
+                // The options attribute is where the Cesium Primitive definition is stored in MVLayer objects.
+                primitive_option = primitive.options
+            }
+            else {
+                primitive_option = cesium_options(Object.values(primitive)[0]);
+            }
+
+            var method = string_to_function(Object.keys(primitive_option)[0]);
+            var cesium_primitive = m_viewer.scene.primitives.add(new method(cesium_options(Object.values(primitive_option)[0])));
+
+            // Other data is stored in data attribute
+            cesium_primitive['tethys_data'] = primitive.data;
+        }
     }
 
     // Set Cesium entities
     cesium_load_entities = function()
     {
         var $map_element = $('#' + m_map_target);
-        var m_entities_options = [];
-        var raw_entities_options = $map_element.data('entities');
-
-        if(is_empty_or_undefined(raw_entities_options))
+        m_entities_options = $map_element.data('entities');
+        if(is_empty_or_undefined(m_entities_options))
         {
             return;
         }
 
         // load entity object.
-        for (let i = 0; i < raw_entities_options.length; i++) {
-            var curr_entity_options  = raw_entities_options[i];
+        for (let i = 0; i < m_entities_options.length; i++) {
+            var curr_entity_options  = m_entities_options[i];
 
             if (!'source' in curr_entity_options) {
                 continue;
@@ -309,6 +377,8 @@ var CESIUM_MAP_VIEW = (function() {
             else if (curr_entity_options.source.toLowerCase() == 'geojson')
             {
                 var gjson = curr_entity_options.options;
+                // In Cesium, point appears as billboards by default. This variable is used to tell tethys to render it as point instead.
+                var point_instead_of_billboard = gjson && gjson['properties'] && gjson['properties']['default_point'] == 'point'
                 var dataSourcePromise = Cesium.GeoJsonDataSource.load(gjson).then(function(source_result) {
                     source_result['tethys_data'] = curr_entity_options.data;
                     source_result['legend_title'] = curr_entity_options.legend_title;
@@ -321,6 +391,16 @@ var CESIUM_MAP_VIEW = (function() {
                     if ('layer_options' in curr_entity_options && curr_entity_options.layer_options &&
                         'visible' in curr_entity_options.layer_options) {
                         source_result.show = curr_entity_options.layer_options.visible;
+                        if (point_instead_of_billboard) {
+                            var point = new Cesium.PointGraphics({
+                                color: Cesium.Color.RED,
+                                pixelSize: 8,
+                            });
+                            source_result.entities.values.forEach((value) => {
+                                value.billboard = undefined;
+                                value.point = point;
+                            })
+                        }
                     }
                     return source_result;
                 });
@@ -475,6 +555,9 @@ var CESIUM_MAP_VIEW = (function() {
 
         // Load Cesium entities
         cesium_load_entities();
+
+        // Load Cesium primitives
+        cesium_load_primitives();
 
         // Load the view last
         cesium_view();
@@ -773,6 +856,12 @@ var CESIUM_MAP_VIEW = (function() {
         return true;
     }
 
+    cesium_time_callback = function(interval) {
+        return {
+            time: Cesium.JulianDate.toIso8601(interval.start)
+        };
+    }
+
 	/************************************************************************
  	*                        DEFINE PUBLIC INTERFACE
  	*************************************************************************/
@@ -785,9 +874,10 @@ var CESIUM_MAP_VIEW = (function() {
 	 */
 
 	public_interface = {
-        getMap: function() {
-            return m_viewer;
-        },
+		getMap: function() {
+		    return m_viewer;
+		},
+		reInitializeMap: cesium_initialize_all,
 	};
 
 	/************************************************************************

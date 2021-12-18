@@ -6,6 +6,290 @@ Prior Release Notes
 
 Information about prior releases is shown here.
 
+Release 3.3
+===========
+
+Select Input Gizmo
+==================
+
+* Add ``id`` attribute to the ``form-group`` of the ``SelectInput`` gizmo to allow it to be selected in custom JavaScript.
+
+See: `Pull Request 616 <https://github.com/tethysplatform/tethys/pull/616>`_
+
+Cesium Map View Gizmo
+=====================
+
+* Add support for time-enabled layers for CesiumMapView gizmo via the ``MVLayer`` specification.
+* This is done by listing timesteps corresponding the times of a time-enabled WMD layer via the ``times`` parameter of ``MVLayer``.
+* Note: time-enabled layers are not supported in MapView gizmo yet.
+
+See: :ref:`gizmo_mvlayer`
+
+Single Sign On
+==============
+
+* Single Sign On / Social Login via ArcGIS Online / Enterprise Portal now supported. See: :ref:`social_auth_arcgis`.
+* Add clarification and fix typos in documentation for OneLogin SSO. See: :ref:`social_auth_onelogin`.
+
+See: :ref:`single_sign_on_config`
+
+Multi-Tenant SSO
+================
+
+* Implemented Multi-Tenant SSO support for providers that support it.
+* Allows Tethys Portals to use authentication from different tenants of the same authentication service.
+* When enabled, users are prompted to provide the name of their tenant/organization before being redirected to login page for that provider.
+* Supported providers include: OneLogin, Okta, Azure AD, and Microsoft ADFS.
+
+See: :ref:`multi_tenant_sso_config`
+
+User Profile and Settings
+=========================
+
+* Removed the username from the URL pattern for User Profile and Settings pages to address security concern.
+* Viewing other user's profiles is no longer possible.
+* The profile and settings pages only display profile and settings for the logged-in user.
+
+See: :ref:`tethys_user_pages`
+
+Password Reset
+==============
+
+* Changes configuration for Password Reset feature of Tethys Portal to be the same as the configuration for MFA email support.
+* This allows the emails sent by the Password Reset and MFA features to be sent from the same email address and alias.
+
+See: :ref:`setup_email_capabilities`
+
+Tethys App Settings
+===================
+
+* Added ``set_custom_setting method`` to ``TethysAppBase`` to allow setting ``CustomSettings`` programmatically.
+* Added a UUID type to ``CustomSetting`` model.
+* UUID type can take ``uuid`` instances or strings.
+
+See: :ref:`app_base_class_api`
+
+Tethys App Admin Settings
+=========================
+
+* Adds ``color`` parameter to the App Settings admin page to allow portal admins to change app color.
+
+See: `Issue 656 <https://github.com/tethysplatform/tethys/issues/656>`_
+
+Bug Fixes
+=========
+
+* Resolves issue with default Gravatar image not displaying for users who haven't defined an email address. See: `Issue 637 <https://github.com/tethysplatform/tethys/issues/637>`_.
+* Fixes an issue where renaming an installed app in the admin pages would cause the app throw 500 errors and no longer be accessible. See: `Issue 653 <https://github.com/tethysplatform/tethys/issues/653>`_.
+* Removed EXIF, IPTC, and XMP metadata from all Tethys Portal images to address metadata leakage security concern. See: `Issue 630 <https://github.com/tethysplatform/tethys/issues/630>`_.
+* Resolves various issues with JobsTable gizmo: dates not being parsed correctly, set job status to error if exception raised during call to ``execute()``, label could not be set when retrieving jobs through job manager. See: `Issue 641 <https://github.com/tethysplatform/tethys/issues/641>`_.
+* Fixes issue where a user's API token was not visible when MFA was enabled and `MFA_REQUIRED` was `False`. See: `Issue 626 <https://github.com/tethysplatform/tethys/issues/626>`_
+* Move ``TethysJob`` model import out of module scope in ``JobsTable`` gizmo to prevent import issues. See: `Pull Request 618 <https://github.com/tethysplatform/tethys/pull/618>`_.
+* Pin Django Channels dependency to 2.* to prevent accidental upgrades to 3.*, which breaks Tethys. See: `Pull Request 680 <https://github.com/tethysplatform/tethys/pull/680>`_
+
+
+Release 3.2
+===========
+
+Multi-Factor Authentication
+===========================
+
+* Implemented Multi Factor Authentication via the `Django MFA2 app <https://pypi.org/project/django-mfa2/>`_.
+* Time-based One Time Password (TOTP) method is enabled by default, but users must opt-in.
+* Added MFA settings to User Profile Pages
+* The Email OTP method has also been tested extensively and verified to work.
+* Other methods have not been tested.
+
+See: :ref:`multi_factor_auth_config`
+
+Additional Single Sign-On Backends
+==================================
+
+* Added four new officially supported Single Sign-On/Social Authentication Methods.
+* Renamed Documentation for "Social Authentication" to the more general "Single Sign On".
+* New methods include: :ref:`social_auth_azuread`, :ref:`social_adfs`, :ref:`social_auth_onelogin`, and :ref:`social_auth_okta`.
+
+See: :ref:`single_sign_on_config`
+
+Automatic Lockout
+=================
+
+* Tethys Portal can now be configured to automatically lockout users after multiple failed login attempts.
+* This feature is opt-in.
+
+See: :ref:`advanced_config_lockout`
+
+
+Jobs Table
+==========
+
+* The Status and Actions Columns have been revamped to simplify the Jobs Table.
+* All action buttons (Delete, Resubmit, View Logs, etc.) have been moved into a drop down menu in the actions column.
+* Simple versions of each status are now shown for single-status jobs instead of a filled progress bar.
+* The progress bar is still used to show the status of multiple-status jobs (i.e. workflows).
+* Several arguments for the Jobs Table are now deprecated in favor of a simpler method.
+* Gizmo Showcase was updated for the Jobs Table.
+
+See: :ref:`jobs-table`
+
+Cesium Map View
+===============
+
+* Added support for ENV and VIEWPARAMS when using MVLayer with Cesium Map View.
+
+See: :ref:`cesium-map-view`
+
+jQuery
+======
+
+* Updated jQuery to 3.5.1 to address known vulnerability in previous version.
+
+Documentation
+-------------
+
+* Added documentation that describes how to configure Tethys Platform to use REDIS as a Channels backend for production.
+
+See: :ref:`production_channels_config` and Official Docker Image
+
+Bug Fixes
+=========
+
+* Fixed an issue with the tethys command line interface not working on systems without Docker installed.
+* Fixed issue with Add User admin page that would prevent adding additional users after the first user was added.
+* Modified the Condor Scheduler admin pages to use the PasswordInput field for the password fields.
+* Updated the default ASGI configuration file so that it can be killed properly by supervisor when stopped.
+
+Release 3.1
+===========
+
+App Permissions Assigned to Groups
+----------------------------------
+
+* App permissions can now be assigned directly to permission Groups in the admin pages.
+* Adding an app to the permission Group will reveal a dialog to select which of the app permissions to also assign.
+* Assign users to the permission Group to grant them those permissions within the app.
+* This is an opt-in feature: set ENABLE_RESTRICTED_APP_ACCESS to True in portal_config.yml to use this feature.
+
+See: :ref:`tethys_portal_app_permission_groups`
+
+App Access Permissions
+----------------------
+
+* Apps now have an access permission that can be used to grant access to specific users or groups.
+* When a users does not have access to an app it will be hidden in the apps library.
+* If a user without permission to access an app enters one of the app URLs, they will see a 404 page.
+* Configure access to apps by creating a permission Group with access to the App and then assign any number of users to that group.
+* The access permission is automatically enforced for all views of apps.
+* This is an opt-in feature: set ENABLE_RESTRICTED_APP_ACCESS to True in portal_config.yml to use this feature.
+
+See: :ref:`tethys_portal_app_permission_groups`
+
+Custom Home and App Library Styles and Templates
+------------------------------------------------
+
+* Portal admins can now customize the Home or App library pages with custom CSS or HTML.
+* Two new settings groups in Site Settings section of admin pages.
+* Specify CSS directly into the setting or reference a file in a discoverable Static path.
+* Specify the path to custom templates in a discoverable Templates path.
+
+See: :ref:`production_customize_theme`
+
+Additional Base Templates for Apps
+----------------------------------
+
+* There are 9 new base templates for Apps that simplify implementing common layouts.
+* Specify the desired base template in the ``extends`` tag of the app template.
+
+See: :ref:`additional_base_templates`
+
+New Features for Jobs Table
+---------------------------
+
+* Logs action that displays job logs while job is running.
+* Monitor job action that can be implemented to display live results of job as it runs.
+* Jobs can be grouped and filtered by permission Groups in addition to User.
+* Resubmit job action.
+
+See: :ref:`jobs-table`
+
+Official Docker Image Improvements
+----------------------------------
+
+* Additional options added to ``run.sh`` to allow it to be run in different modes (daemon, test, etc.) to facilitate testing.
+* Adds two new Salt Scripts to make it easier to extend without duplicating steps.
+* ``pre_tethys.sls``: prepares static and workspace directories in persistent volume location.
+* ``post_app.sls``: runs ``collectstatic`` and ``collectall`` and syncs configuration files to persistent volume location.
+* New documentation for using the Official Docker Image
+
+See: Official Docker Image
+
+Tethys Portal Configuration
+---------------------------
+
+* Fixed inconsistencies with documentation and behavior.
+* Fixed issues with some of the groups that weren't working.
+* The way logging settings are specified is more straight-forward now.
+
+See: :ref:`tethys_configuration`
+
+Install Command
+---------------
+
+* New ``--no-db-sync`` option to ``tethys install`` command to allow for installing the app code without the database sync portion.
+* This is helpful in contexts where the database is unavailable during installation such as in a Docker build.
+
+See: :ref:`tethys_cli_install`
+
+Collectstatic Command
+---------------------
+
+* Behavior of ``collectstatic`` command changed to copy the static directory instead of link it to be more consistent with how other static files are handled.
+* Alleviates a workaround that was necessary in SE Linux environments (the links couldn't be followed).
+* Old linking behavior still available via the ``--link`` option.
+
+See: :ref:`tethys_manage_cmd`
+
+Expanded Earth Engine Tutorials
+-------------------------------
+
+* Two additional follow-on tutorials to the Earth Engine tutorial.
+* Part 2 - add additional pages to app, layout with Bootstrap grid system, upload files, add REST API.
+* Part 3 - prepare app for production deployment and publishing on GitHub, deploy to production server.
+
+See: :ref:`tutorial_google_earth_engine`
+
+All New Production Installation Guide
+-------------------------------------
+
+* Near complete rewrite of the production installation documentation.
+* Examples shown for both Ubuntu and CentOS.
+* Expanded from a 1 page document to 25+ documents.
+* Moved many documents that were in Tethys Portal to configuration section of production installation docs.
+* All existing documentation was updated.
+
+See: :ref:`production_installation`
+
+Docs Fixes
+----------
+
+* Added example for SSL firewall configuration.
+* Various fixes to make THREDDS and GEE tutorials more clear.
+* Tethys Portal Configuration documentation fixed.
+
+
+Bug Fixes
+---------
+
+* Fixed bug with scaffolding extensions.
+* Compatibility changes for Bokeh 2.0.0.
+* Fixes broken URIs for password reset capability.
+
+Security Updates
+----------------
+
+* Return 404 instead of 403 on pages that require login to prevent directory mapping.
+* Disable caching on login and register pages.
+
 Release 3.0
 ===========
 
@@ -77,7 +361,7 @@ Django Analytical
 * Tethys comes with `Django Analytical <https://django-analytical.readthedocs.io/en/latest/>`_ installed to enable support form a number of analytics and tracking services.
 * You can now enable analytics tracking (e.g. Google Analytics) to every page of your apps and portal with a few settings in the settings file.
 
-See: :doc:`../installation/production/configuration/advanced/webanalytics`
+See: :doc:`../installation/production/manual/configuration/advanced/webanalytics`
 
 Tethys Quotas
 -------------

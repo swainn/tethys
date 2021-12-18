@@ -1486,6 +1486,14 @@ def cesium_map_view(request, type):
                 'homeButton': True,
                 'shadows': True,
             },
+            primitives=[
+                MVLayer(
+                    source='CesiumPrimitive',
+                    legend_title='Cesium 3D Buildings',
+                    options={'Cesium.Cesium3DTileset': {'url': {'Cesium.IonResource.fromAssetId': 96188}}},
+                    data={'layer_name': 'Cesium_Buildings', 'layer_variable': 'variable', 'layer_id': 1}
+                )
+            ],
             layers={'BingMap': {'imageryProvider': {
                 'Cesium.BingMapsImageryProvider': [{
                     'url': 'https://dev.virtualearth.net',
@@ -1493,23 +1501,27 @@ def cesium_map_view(request, type):
                     'mapStyle': 'Aerial',
                 }],
             }}},
-            models={
-                'Cesium_Airplane': {
-                    'model': {
-                        'uri': object1,
-                        'show': True,
-                        'minimumPixelSize': 128,
-                        'maximumScale': 20000,
-                        'shadows': 'enabled',
-                    },
-                    'name': object1,
-                    'orientation': {
-                        'Cesium.Transforms.headingPitchRollQuaternion':
-                            [{'Cesium.Cartesian3.fromDegrees': [-123.0744619, 44.0503706, 5000]},
-                             {'Cesium.HeadingPitchRoll': [{'Cesium.Math.toRadians': 135}, 0, 0]}]},
-                    'position': {'Cesium.Cartesian3.fromDegrees': [-123.0744619, 44.0503706, 5000]},
-                },
-            },
+            models=[
+                MVLayer(
+                    source='CesiumModel',
+                    legend_title='Cesium Model',
+                    options={'model': {'uri': object1,
+                                       'show': True,
+                                       'minimumPixelSize': 128,
+                                       'maximumScale': 20000,
+                                       'shadows': 'enabled'},
+                             'name': 'Cesium_Airplane',
+                             'orientation': {
+                                 'Cesium.Transforms.headingPitchRollQuaternion':
+                                     [{'Cesium.Cartesian3.fromDegrees': [-123.0744619, 44.0503706, 5000]},
+                                      {'Cesium.HeadingPitchRoll': [{'Cesium.Math.toRadians': 135}, 0, 0]}]},
+                             'position': {'Cesium.Cartesian3.fromDegrees': [-123.0744619, 44.0503706, 5000]}
+                             },
+                    data={'layer_id': "cesium_airplane_id",
+                          'layer_name': "Cesium_Airplane",
+                          'popup_title': "Cesium Airplane"}
+                )
+            ],
             clock={'clock': {'Cesium.Clock': {
                 'startTime': {'Cesium.JulianDate.fromIso8601': ['2017-07-11T00:00:00Z']},
                 'stopTime': {'Cesium.JulianDate.fromIso8601': ['2017-07-11T24:00:00Z']},
@@ -1521,7 +1533,7 @@ def cesium_map_view(request, type):
             }}}
         )
 
-    # 7. Multiple Models
+    # 7. Multiple Models with data
     if type == 'model2':
         object1 = '/static/tethys_gizmos/cesium_models/CesiumAir/Cesium_Air.glb'
         object2 = '/static/tethys_gizmos/cesium_models/CesiumBalloon/CesiumBalloon.glb'
@@ -1541,8 +1553,11 @@ def cesium_map_view(request, type):
                     'mapStyle': 'Aerial',
                 }]}
             }},
-            models={
-                'Cesium_Airplane': {
+            primitives=[
+                {'Cesium_OSM_Buildings': {'Cesium.Cesium3DTileset': {'url': {'Cesium.IonResource.fromAssetId': 96188}}}}
+            ],
+            models=[
+                {'Cesium_Airplane': {
                     'model': {
                         'uri': object1,
                         'show': True,
@@ -1550,34 +1565,34 @@ def cesium_map_view(request, type):
                         'maximumScale': 20000,
                         'shadows': 'enabled',
                     },
-                    'name': object1,
-                    'orientation': {'Cesium.Transforms.headingPitchRollQuaternion': [
+                    'name': 'Cesium Airplane',
+                    'orientation': {
+                        'Cesium.Transforms.headingPitchRollQuaternion': [
                             {'Cesium.Cartesian3.fromDegrees': [-123.0744619, 44.0503706, 5000]},
-                            {'Cesium.HeadingPitchRoll': [{'Cesium.Math.toRadians': 135}, 0, 0]}
-                        ]},
+                            {'Cesium.HeadingPitchRoll': [{'Cesium.Math.toRadians': 135}, 0, 0]}]},
                     'position': {'Cesium.Cartesian3.fromDegrees': [-123.0744619, 44.0503706, 5000]},
-                },
-                'Cesium_Ballon': {
-                    'model': {
+                }},
+                MVLayer(
+                    source='CesiumModel',
+                    legend_title='Cesium Ballon',
+                    options={'model': {
                         'uri': object2,
                         'show': True,
                         'minimumPixelSize': 128,
                         'maximumScale': 20000,
-                        'shadows': 'enabled',
-                    },
-                    'name': object2,
-                    'orientation': {
-                        'Cesium.Transforms.headingPitchRollQuaternion': [
-                            {'Cesium.Cartesian3.fromDegrees': [-123.0744619, 44.0503706, 5000]},
-                            {'Cesium.HeadingPitchRoll': [{'Cesium.Math.toRadians': 135}, 0, 0]}
-                        ]
-                    },
-                    'position': {
-                        'Cesium.Cartesian3.fromDegrees': [-123.0744619, 44.0503706, 5000]
-                    },
-
-                },
-            },
+                        'shadows': 'enabled'},
+                        'name': 'Cesium_Ballon',
+                        'orientation': {
+                            'Cesium.Transforms.headingPitchRollQuaternion':
+                                [{'Cesium.Cartesian3.fromDegrees': [-123.0744619, 44.0503706, 5000]},
+                                 {'Cesium.HeadingPitchRoll': [{'Cesium.Math.toRadians': 135}, 0, 0]}]},
+                        'position': {'Cesium.Cartesian3.fromDegrees': [-123.0744619, 44.0503706, 5000]}
+                     },
+                    data={'layer_id': "cesium_ballon_id",
+                          'layer_name': "Cesium_Ballon",
+                          'popup_title': "Cesium Ballon"}
+                ),
+            ],
         )
 
     submitted_geometry = request.POST.get('geometry', None)
@@ -1605,11 +1620,13 @@ def jobs_table_demo(request):
         striped=False,
         bordered=False,
         condensed=False,
+        monitor_url='gizmos:results',
         results_url='gizmos:results',
         refresh_interval=10000,
+        run_btn=True,
         delete_btn=True,
         show_detailed_status=True,
-        show_resubmit_btn=True,
+        actions=['run', 'resubmit', 'log', 'monitor', 'results', 'terminate', 'delete'],
     )
 
     context = {'jobs_table': jobs_table_options}
@@ -1618,36 +1635,35 @@ def jobs_table_demo(request):
 
 
 def jobs_table_results(request, job_id):
-    return redirect(reverse('gizmos:showcase') + '#jobs_table_docs')
+    return redirect(reverse('gizmos:jobs_table'))
 
 
 def create_sample_jobs(request):
-    def create_job(id, description, status, workflow=False):
-        if not workflow:
-            job = BasicJob(name='job_{0}'.format(id),
-                           user=request.user,
-                           description=description,
-                           label='gizmos_showcase',
-                           _status=status,
-                           )
-        else:
-            job = CondorWorkflow(
-                name='job_{0}'.format(id),
-                user=request.user,
-                description=description,
-                label='gizmos_showcase',
-                _status=status
-            )
+    def create_job(job_id, description, status, status_msg=None, workflow=False):
+        Job = CondorWorkflow if workflow else BasicJob
+        job = Job(
+            name=f'job_{job_id}',
+            user=request.user,
+            description=description,
+            label='gizmos_showcase',
+            status_message=status_msg,
+            _status=status,
+        )
         job.save()
 
-    create_job('1', 'Pending job', 'PEN')
-    create_job('2', 'Submitted job', 'SUB')
-    create_job('3', 'Running job', 'RUN')
-    create_job('4', 'Running multi-process job with various statuses', 'VAR')
-    create_job('5', 'Job error', 'ERR')
-    create_job('6', 'Aborted job', 'ABT')
-    create_job('7', 'Completed job', 'COM')
-    create_job('8', 'Completed multi-process job with some errors', 'VCP')
-    create_job('9', 'Workflow job with multiple nodes.', 'VAR', workflow=True)
+    for i, (desc, status) in enumerate((
+            ('Pending job', 'PEN'),
+            ('Submitted job', 'SUB'),
+            ('Running job', 'RUN'),
+            ('Job error', 'ERR'),
+            ('Aborted job', 'ABT'),
+            ('Completed job', 'COM'),
+    )):
+        create_job(i, desc, status)
+        create_job(i + 10, desc, status, status_msg=f'{desc} status message')
+
+    create_job('20', 'Running multi-process job with various statuses', 'VAR')
+    create_job('21', 'Completed multi-process job with some errors', 'VCP')
+    create_job('22', 'Workflow job with multiple nodes.', 'VAR', workflow=True)
 
     return redirect(reverse('gizmos:jobs_table') + '#jobs_table_docs')

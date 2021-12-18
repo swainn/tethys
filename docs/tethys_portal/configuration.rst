@@ -122,15 +122,61 @@ The following is a list of keys that can be added to the :file:`portal_config.ym
 
   * **OAUTH_CONFIG**:
 
-    * **SOCIAL_AUTH_GOOGLE_OAUTH2_KEY**: Key for authenticating with Google using their OAuth2 service. See :ref:`social_auth_google` OAuth2 Setup.
-    * **SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET**: Secret for authenticating with Google using their OAuth2 service. See :ref:`social_auth_google` OAuth2 Setup.
-    * **SOCIAL_AUTH_FACEBOOK_KEY**: Key for authenticating with Facebook using their OAuth2 service. See :ref:`social_auth_facebook` OAuth2 Setup.
-    * **SOCIAL_AUTH_FACEBOOK_SECRET**: Secret for authenticating with Facebook using their OAuth2 service. See :ref:`social_auth_facebook` OAuth2 Setup.
-    * **SOCIAL_AUTH_FACEBOOK_SCOPE**: List of scopes for authenticating with Facebook using their OAuth2 service. See :ref:`social_auth_facebook` OAuth2 Setup.
-    * **SOCIAL_AUTH_LINKEDIN_OAUTH2_KEY**: Key for authenticating with LinkedIn using their OAuth2 service. See :ref:`social_auth_linkedin` OAuth2 Setup.
-    * **SOCIAL_AUTH_LINKEDIN_OAUTH2_SECRET**: Secret for authenticating with LinkedIn using their OAuth2 service. See :ref:`social_auth_linkedin` OAuth2 Setup.
-    * **SOCIAL_AUTH_HYDROSHARE_KEY**: Key for authenticating with HydroShare using their OAuth2 service. See :ref:`social_auth_hydroshare` OAuth2 Setup.
-    * **SOCIAL_AUTH_HYDROSHARE_SECRET**: Secret for authentication with HydroShare using their OAuth2 service. See :ref:`social_auth_hydroshare` OAuth2 Setup.
+    * **SSO_TENANT_ALIAS**: Alias to use for "Tenant" on the /accounts/tenant/ page. This page is only needed when using Multi-Tenant SSO features. Defaults to "Tenant".
+    * **SSO_TENANT_REGEX**: A regular expression defining the characters allowed in the Tenant field on the /accounts/tenant/ page. This page is only needed when using Multi-Tenant SSO features. Defaults to "^[\w\s_-]+$".
+    * **SOCIAL_AUTH_AZUREAD_OAUTH2_KEY**: Key for authenticating with Azure Active Directory using their OAuth2 service. See :ref:`social_auth_azuread` SSO Setup.
+    * **SOCIAL_AUTH_AZUREAD_OAUTH2_SECRET**: Secret for authenticating with Azure Active Directory using their OAuth2 service. See :ref:`social_auth_azuread` SSO Setup.
+    * **SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_MULTI_TENANT**: Define one or more sets of settings for multiple tenants, each indexed by a Tenant Key. See: :ref:`social_auth_azuread_multi` Setup.
+    * **SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY**: Key for authenticating with Azure Active Directory against a single Tenant/Active Directory using their OAuth2 service. See :ref:`social_auth_azuread` SSO Setup.
+    * **SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET**: Secret for authenticating with Azure Active Directory against a single Tenant/Active Directory using their OAuth2 service. See :ref:`social_auth_azuread` SSO Setup.
+    * **SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID**: The ID of the Tenant/Active Directory to authenticate against. See :ref:`social_auth_azuread` SSO Setup.
+    * **SOCIAL_AUTH_AZUREAD_B2C_OAUTH2_MULTI_TENANT**: Define one or more sets of settings for multiple tenants, each indexed by a Tenant Key. See: :ref:`social_auth_azuread_multi` Setup.
+    * **SOCIAL_AUTH_AZUREAD_B2C_OAUTH2_KEY**: Key for authenticating with Azure Active Directory B2C using their OAuth2 service. See :ref:`social_auth_azuread` SSO Setup.
+    * **SOCIAL_AUTH_AZUREAD_B2C_OAUTH2_SECRET**: Secret for authenticating with Azure Active Directory B2C using their OAuth2 service. See :ref:`social_auth_azuread` SSO Setup.
+    * **SOCIAL_AUTH_AZUREAD_B2C_OAUTH2_TENANT_ID**: The ID of the Tenant/Active Directory to authenticate against in Azure Active Directory B2C. See :ref:`social_auth_azuread` SSO Setup.
+    * **SOCIAL_AUTH_AZUREAD_B2C_OAUTH2_POLICY**: The user flow policy to use. Use `'b2c_'` unless you have created a custom user flow that you would like to use. See :ref:`social_auth_azuread` SSO Setup.
+    * **SOCIAL_AUTH_ADFS_OIDC_MULTI_TENANT**: Define one or more sets of settings for multiple tenants, each indexed by a Tenant Key. See: :ref:`social_adfs_multi` Setup.
+    * **SOCIAL_AUTH_ADFS_OIDC_KEY**: Client ID for authenticating with an AD FS services using its Open ID Connect interface. See :ref:`social_adfs` SSO Setup.
+    * **SOCIAL_AUTH_ADFS_OIDC_SECRET**: Secret for authenticating with an AD FS service using its Open ID Connect interface. See :ref:`social_adfs` SSO Setup.
+    * **SOCIAL_AUTH_ADFS_OIDC_DOMAIN**: Domain of the AD FS server. See :ref:`social_adfs` SSO Setup.
+    * **SOCIAL_AUTH_FACEBOOK_KEY**: Key for authenticating with Facebook using their OAuth2 service. See :ref:`social_auth_facebook` SSO Setup.
+    * **SOCIAL_AUTH_FACEBOOK_SECRET**: Secret for authenticating with Facebook using their OAuth2 service. See :ref:`social_auth_facebook` SSO Setup.
+    * **SOCIAL_AUTH_FACEBOOK_SCOPE**: List of scopes for authenticating with Facebook using their OAuth2 service. See :ref:`social_auth_facebook` SSO Setup.
+    * **SOCIAL_AUTH_GOOGLE_OAUTH2_KEY**: Key for authenticating with Google using their OAuth2 service. See :ref:`social_auth_google` SSO Setup.
+    * **SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET**: Secret for authenticating with Google using their OAuth2 service. See :ref:`social_auth_google` SSO Setup.
+    * **SOCIAL_AUTH_HYDROSHARE_KEY**: Key for authenticating with HydroShare using their OAuth2 service. See :ref:`social_auth_hydroshare` SSO Setup.
+    * **SOCIAL_AUTH_HYDROSHARE_SECRET**: Secret for authentication with HydroShare using their OAuth2 service. See :ref:`social_auth_hydroshare` SSO Setup.
+    * **SOCIAL_AUTH_ARCGIS_KEY**: Key for authenticating with ArcGIS Online using their OAuth2 service. See :ref:`social_auth_arcgis` SSO Setup.
+    * **SOCIAL_AUTH_ARCGIS_SECRET**: Secret for authentication with ArcGIS Online using their OAuth2 service. See :ref:`social_auth_arcgis` SSO Setup.
+    * **SOCIAL_AUTH_ARCGIS_PORTAL_KEY**: Key for authenticating with an ArcGIS Enterprise Portal using their OAuth2 service. See :ref:`social_auth_arcgis` SSO Setup.
+    * **SOCIAL_AUTH_ARCGIS_PORTAL_SECRET**: Secret for authentication with an ArcGIS Enterprise Portal using their OAuth2 service. See :ref:`social_auth_arcgis` SSO Setup.
+    * **SOCIAL_AUTH_ARCGIS_PORTAL_URL**: Root URL of the ArcGIS Enterprise Portal that will provide their OAuth2 service. See :ref:`social_auth_arcgis` SSO Setup.
+    * **SOCIAL_AUTH_LINKEDIN_OAUTH2_KEY**: Key for authenticating with LinkedIn using their OAuth2 service. See :ref:`social_auth_linkedin` SSO Setup.
+    * **SOCIAL_AUTH_LINKEDIN_OAUTH2_SECRET**: Secret for authenticating with LinkedIn using their OAuth2 service. See :ref:`social_auth_linkedin` SSO Setup.
+    * **SOCIAL_AUTH_OKTA_OAUTH2_MULTI_TENANT**: Define one or more sets of settings for multiple tenants, each indexed by a Tenant Key. See: :ref:`social_auth_okta_multi` Setup.
+    * **SOCIAL_AUTH_OKTA_OAUTH2_KEY**: Client ID for authenticating with Okta using their OAuth 2 interface. See :ref:`social_auth_okta` SSO Setup.
+    * **SOCIAL_AUTH_OKTA_OAUTH2_SECRET**: Secret for authenticating with Okta using their OAuth 2 interface. See :ref:`social_auth_okta` SSO Setup.
+    * **SOCIAL_AUTH_OKTA_OAUTH2_API_URL**: Your Okta Organization URL. See :ref:`social_auth_okta` SSO Setup.
+    * **SOCIAL_AUTH_OKTA_OPENIDCONNECT_MULTI_TENANT**: Define one or more sets of settings for multiple tenants, each indexed by a Tenant Key. See: :ref:`social_auth_okta_multi` Setup.
+    * **SOCIAL_AUTH_OKTA_OPENIDCONNECT_KEY**: Client ID for authenticating with Okta using their Open ID Connect interface. See :ref:`social_auth_okta` SSO Setup.
+    * **SOCIAL_AUTH_OKTA_OPENIDCONNECT_SECRET**: Secret for authenticating with Okta using their Open ID Connect interface. See :ref:`social_auth_okta` SSO Setup.
+    * **SOCIAL_AUTH_OKTA_OPENIDCONNECT_API_URL**: Your Okta Organization URL. See :ref:`social_auth_okta` SSO Setup.
+    * **SOCIAL_AUTH_ONELOGIN_OIDC_MULTI_TENANT**: Define one or more sets of settings for multiple tenants, each indexed by a Tenant Key. See: :ref:`social_auth_onelogin_multi` Setup.
+    * **SOCIAL_AUTH_ONELOGIN_OIDC_KEY**: Client ID for authenticating with OneLogin using their Open ID Connect interface. See :ref:`social_auth_onelogin` SSO Setup.
+    * **SOCIAL_AUTH_ONELOGIN_OIDC_SECRET**: Secret for authenticating with OneLogin using their Open ID Connect interface. See :ref:`social_auth_onelogin` SSO Setup.
+    * **SOCIAL_AUTH_ONELOGIN_OIDC_SUBDOMAIN**: Your OneLogin Subdomain. See :ref:`social_auth_onelogin` SSO Setup.
+
+  * **MFA_CONFIG**:
+
+    * **MFA_REQUIRED**: Are users required to set up MFA to be able to use the Tethys portal. Defaults to ``False``.
+    * **ADMIN_MFA_REQUIRED**: Are admin (staff) users required to set up MFA when MFA_REQUIRED is ``True``. Defaults to ``True``.
+    * **SSO_MFA_REQUIRED**: Are users logged in with SSO required to set up MFA when MFA_REQUIRED is ``True``. Defaults to ``False``.
+    * **MFA_RECHECK**: Allow random rechecking of the user. Defaults to False.
+    * **MFA_RECHECK_MIN**: Minimum recheck interval in seconds. Defaults to 600 seconds (10 minutes).
+    * **MFA_RECHECK_MAX**: Maximum recheck interval in seconds. Defaults to 1800 seconds (30 minutes).
+    * **MFA_QUICKLOGIN**: Allow quick login for returning users by provide only their 2FA. Defaults to False.
+    * **TOKEN_ISSUER_NAME**: TOTP Issuer name to display in the app. Defaults to ``Tethys Portal``.
+    * **MFA_UNALLOWED_METHODS**: A list of MFA methods to be disallowed. Valid methods are include ``U2F``, ``FIDO2``, ``Email``, ``Trusted_Devices``, and ``TOTP``. All but ``TOPT`` are disabled by default.
 
   * **ANALYTICS_CONFIG**: the Django Analytical configuration settings for enabling analytics services on the Tethys Portal (see: `Enabling Services - Django Analytical <https://django-analytical.readthedocs.io/en/latest/install.html#enabling-the-services>`_. The following is a list of settings for some of the supported services that can be enabled.
 
@@ -168,6 +214,19 @@ The following is a list of keys that can be added to the :file:`portal_config.ym
     * **EMAIL_HOST_PASSWORD**: the Django `EMAIL_HOST_PASSWORD <https://docs.djangoproject.com/en/2.2/ref/settings/#email-host-password>`_ setting.
     * **EMAIL_USE_TLS**: the Django `EMAIL_USE_TLS <https://docs.djangoproject.com/en/2.2/ref/settings/#email-use-tls>`_ setting.
     * **DEFAULT_FROM_EMAIL**: the Django `DEFAULT_FROM_EMAIL <https://docs.djangoproject.com/en/2.2/ref/settings/#default-from-email>`_ setting.
+    * **EMAIL_FROM**: the email alias setting (e.g.: 'John Smith').
+
+  * **LOCKOUT_CONFIG**: the Django Axes configuration settings for enabling lockout capabilities on Tethys Portal (see: :ref:`advanced_config_lockout`). The following is a list of the Django Axes settings that are configured for the default lockout capabilities in Tethys Portal. For a full list of Django Axes settings, see: `Django Axes Configuration Documentation <https://django-axes.readthedocs.io/en/latest/4_configuration.html>`_.
+
+    * **AXES_ENABLED**: Disabled when ``DEBUG`` is on, and enabled when ``DEBUG`` is off.
+    * **AXES_FAILURE_LIMIT**: Number of failed login attempts to allow before locking. Default ``3``.
+    * **AXES_COOLOFF_TIME**: Time to elapse before locked user is allowed to attempt logging in again. In the :file:`portal_config.yml` this setting accepts only integers or `ISO 8601 time duration formatted strings <https://en.wikipedia.org/wiki/ISO_8601#Durations>`_ (e.g.: ``"PT30M"``). Default is 30 minutes.
+    * **AXES_ONLY_USER_FAILURES**: Only lock based on username and do not lock based on IP when True. Defaults to ``True``.
+    * **AXES_ENABLE_ADMIN**: Enable the Django Axes admin interface. Defaults to ``True``.
+    * **AXES_VERBOSE**: More logging for Axes when True. Defaults to ``True``.
+    * **AXES_RESET_ON_SUCCESS**: Successful login (after the cooloff time has passed) will reset the number of failed logins when True. Defaults to ``True``.
+    * **AXES_LOCKOUT_TEMPLATE**: Template to render when user is locked out. Defaults to ``'tethys_portal/accounts/lockout.html'``
+    * **AXES_LOGGER**: The logger for Django Axes to use. Defaults to ``'tethys.watch_login'``.
 
   * **CHANNEL_LAYERS**: the Django Channels `CHANNEL_LAYERS <https://channels.readthedocs.io/en/latest/topics/channel_layers.html#channel-layers>`_ setting.
 
@@ -179,6 +238,13 @@ The following is a list of keys that can be added to the :file:`portal_config.ym
   * **GUARDIAN_RENDER_403**: the Django Guardian `GUARDIAN_RENDER_403 <https://django-guardian.readthedocs.io/en/stable/configuration.html#guardian-render-403>`_ setting.
   * **GUARDIAN_TEMPLATE_403**: the Django Guardian `GUARDIAN_TEMPLATE_403 <https://django-guardian.readthedocs.io/en/stable/configuration.html#guardian-template-403>`_ setting.
   * **ANONYMOUS_USER_NAME**: the Django Guardian `ANONYMOUS_USER_NAME <https://django-guardian.readthedocs.io/en/stable/configuration.html#anonymous-user-name>`_ setting.
+
+.. _tethys_configuration_site_settings:
+
+Site Settings
+-------------
+
+The **site_content** Portal Yaml Key is used to specify settings related to customization of the portal theme and content. Here is a comprehensive list of the available settings:
 
 * **site_content**: customize the look and feel of the Tethys Portal with these settings.
 

@@ -120,6 +120,14 @@ class TethysJobTest(TethysTestCase):
         self.assertEqual('Various', ret_old.status)
         self.assertEqual('Submitted', ret_new.status)
 
+    @mock.patch('tethys_compute.models.tethys_job.TethysJob._execute')
+    def test_execute_with_error(self, mock__execute):
+        mock__execute.side_effect = Exception
+        TethysJob.objects.get(name='test_tethysjob_execute_time').execute()
+        status = TethysJob.objects.get(name='test_tethysjob_execute_time').status
+
+        self.assertEqual('Error', status)
+
     @mock.patch('tethys_compute.models.tethys_job.log')
     def test_update_status_invalid(self, mock_log):
         tethysjob = TethysJob(
@@ -375,3 +383,8 @@ class TethysJobTest(TethysTestCase):
         time_to_update_status = ret.is_time_to_update()
 
         self.assertFalse(time_to_update_status)
+
+    def test_lt(self):
+        ret = sorted((self.tethysjob, self.tethysjob_execute_time))
+        expected_value = [self.tethysjob, self.tethysjob_execute_time]
+        self.assertListEqual(ret, expected_value)

@@ -22,7 +22,7 @@ dependencies:
 
 # database dependencies
 - postgresql
-- psycopg2
+- psycopg2<2.9  # remove pin after upgrading to django 3.
 - sqlalchemy
 - geoalchemy2
 
@@ -38,13 +38,21 @@ dependencies:
 - social-auth-app-django
 - dask=1.2.*
 - tethys_dask_scheduler>=1.0.2
-- channels
+- channels=2.*
+- daphne=2.5.*
 - service_identity
 - condorpy
 - siphon
+- python-jose
+- pyjwt<2.0.0
+
+# datetime dependencies
+- arrow
+- isodate
 
 # django/plugin dependencies
 - django=2.2.*
+- django-axes
 - django-filter
 - djangorestframework
 - django-bootstrap3
@@ -56,6 +64,7 @@ dependencies:
 - django-analytical
 - django-simple-captcha
 - django-recaptcha2
+- django-mfa2
 - social-auth-app-django
 
 # tests dependencies

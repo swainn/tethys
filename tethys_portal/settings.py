@@ -25,6 +25,7 @@ import os
 import sys
 import yaml
 import logging
+import datetime as dt
 
 from django.contrib.messages import constants as message_constants
 from tethys_apps.utilities import get_tethys_home_dir
@@ -103,7 +104,6 @@ DEFAULT_DB.setdefault('PASSWORD', 'pass')
 DEFAULT_DB.setdefault('HOST', 'localhost')
 DEFAULT_DB.setdefault('PORT', 5436)
 
-
 LOGGING_CONFIG = portal_config_settings.pop('LOGGING_CONFIG', {})
 # See https://docs.djangoproject.com/en/1.8/topics/logging/#configuring-logging for more logging configuration options.
 LOGGING = portal_config_settings.pop('LOGGING', {})
@@ -142,7 +142,6 @@ LOGGERS.setdefault('tethys.apps', {
     'level': 'INFO',
 })
 
-
 INSTALLED_APPS = portal_config_settings.pop('INSTALLED_APPS_OVERRIDE', [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -168,6 +167,8 @@ INSTALLED_APPS = portal_config_settings.pop('INSTALLED_APPS_OVERRIDE', [
     'rest_framework.authtoken',
     'analytical',
     'channels',
+    'mfa',
+    'axes',
 ])
 INSTALLED_APPS = tuple(INSTALLED_APPS + portal_config_settings.pop('INSTALLED_APPS', []))
 
@@ -177,15 +178,17 @@ MIDDLEWARE = portal_config_settings.pop('MIDDLEWARE_OVERRIDE', [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'tethys_portal.middleware.TethysMfaRequiredMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'tethys_portal.middleware.TethysSocialAuthExceptionMiddleware',
     'tethys_portal.middleware.TethysAppAccessMiddleware',
     'session_security.middleware.SessionSecurityMiddleware',
-
+    'axes.middleware.AxesMiddleware',
 ])
 MIDDLEWARE = tuple(MIDDLEWARE + portal_config_settings.pop('MIDDLEWARE', []))
 
 AUTHENTICATION_BACKENDS = portal_config_settings.pop('AUTHENTICATION_BACKENDS_OVERRIDE', [
+    'axes.backends.AxesBackend',
     'django.contrib.auth.backends.ModelBackend',
     'guardian.backends.ObjectPermissionBackend',
 ])
@@ -264,7 +267,7 @@ TEMPLATES = [
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'), )
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -291,6 +294,7 @@ MESSAGE_TAGS = {
 
 # Email Configuration
 EMAIL_CONFIG = portal_config_settings.pop('EMAIL_CONFIG', {})
+EMAIL_FROM = portal_config_settings.pop('EMAIL_FROM', '')
 for setting, value in EMAIL_CONFIG.items():
     setattr(this_module, setting, value)
 
@@ -308,10 +312,59 @@ SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['username', 'first_name', 'email']
 SOCIAL_AUTH_SLUGIFY_USERNAMES = True
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/apps/'
 SOCIAL_AUTH_LOGIN_ERROR_URL = '/accounts/login/'
+SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['tenant']
 
 # OAuth Providers
 OAUTH_CONFIG = portal_config_settings.pop('OAUTH_CONFIG', {})
 for setting, value in OAUTH_CONFIG.items():
+    setattr(this_module, setting, value)
+
+# MFA Settings
+# See: https://github.com/mkalioby/django-mfa2
+# Methods that shouldn't be allowed for the user, U2F, FIDO2, TOTP, Trusted_Devices, Email
+MFA_REQUIRED = False                # Require all users to set up MFA
+SSO_MFA_REQUIRED = False            # Require users logged in with SSO to set up MFA when MFA_REQUIRED is True
+ADMIN_MFA_REQUIRED = True           # Require admin users to set up MFA when MFA_REQUIRED is True
+MFA_UNALLOWED_METHODS = ('U2F', 'FIDO2', 'Email', 'Trusted_Devices')
+# A function that should be called by username to login the user in session
+MFA_LOGIN_CALLBACK = 'tethys_portal.utilities.log_user_in'
+MFA_RECHECK = False                  # Allow random rechecking of the user
+MFA_RECHECK_MIN = 600                # Minimum interval in seconds
+MFA_RECHECK_MAX = 1800               # Maximum in seconds
+MFA_QUICKLOGIN = False               # Allow quick login for returning users by provide only their 2FA
+MFA_HIDE_DISABLE = ('FIDO2',)        # Can the user disable his key (Added in 1.2.0).
+MFA_OWNED_BY_ENTERPRISE = False      # Who owns security keys
+TOKEN_ISSUER_NAME = 'Tethys Portal'  # TOTP Issuer name
+
+U2F_APPID = 'http://localhost'       # URL For U2F
+FIDO_SERVER_ID = u'localhost'        # Server rp id for FIDO2, it's the full domain of your project
+FIDO_SERVER_NAME = u'Tethys Portal'
+FIDO_LOGIN_URL = '/auth/login'
+
+MFA_CONFIG = portal_config_settings.pop('MFA_CONFIG', {})
+
+for setting, value in MFA_CONFIG.items():
+    setattr(this_module, setting, value)
+
+# Lockout Configuration
+AXES_ENABLED = not DEBUG
+AXES_FAILURE_LIMIT = 3
+AXES_COOLOFF_TIME = dt.timedelta(hours=0.5)
+AXES_ONLY_USER_FAILURES = True
+AXES_ENABLE_ADMIN = True
+AXES_LOCKOUT_TEMPLATE = 'tethys_portal/accounts/lockout.html'
+AXES_VERBOSE = True
+AXES_RESET_ON_SUCCESS = True
+
+LOCKOUT_CONFIG = portal_config_settings.pop('LOCKOUT_CONFIG', {})
+for setting, value in LOCKOUT_CONFIG.items():
+    if setting == 'AXES_COOLOFF_TIME' and isinstance(value, str):
+        import isodate
+        try:
+            value = isodate.parse_duration(value)
+        except Exception:
+            pass
+
     setattr(this_module, setting, value)
 
 # Django Guardian Settings
