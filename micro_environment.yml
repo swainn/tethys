@@ -9,30 +9,30 @@
 name: tethys
 
 channels:
-  - conda-forge
+- conda-forge
 
 dependencies:
-  - python>=3.8
+- python>=3.8
 
-  # system dependencies
-  - pyopenssl
-  - openssl
+# system dependencies
+- pyopenssl
+- openssl
 
-  # core dependencies
-  - django>=3.2,<6
-  - channels
-  - daphne
-  - setuptools_scm
-  - pip
-  - requests # required by lots of things
-  - bcrypt  # also required by channels, docker, daphne, condorpy
+# core dependencies
+- django>=3.2,<6
+- channels
+- daphne
+- setuptools_scm
+- pip
+- requests # required by lots of things
+- bcrypt # also required by channels, docker, daphne, condorpy
 
-  # Gen CLI commands
-  - pyyaml
-  - jinja2
+# Gen CLI commands
+- pyyaml
+- jinja2
+- pyfiglet
 
-
-  # django plugin dependencies
-  - django-bootstrap5
-  - django-model-utils
-  - django-guardian
+# django plugin dependencies
+- django-bootstrap5
+- django-model-utils
+- django-guardian
