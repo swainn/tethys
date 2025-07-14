@@ -1,5 +1,5 @@
-from tethys_portal import __version__
 from pyfiglet import Figlet
+from tethys_portal import __version__
 
 
 def add_version_parser(subparsers):
